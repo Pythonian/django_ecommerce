@@ -1,0 +1,85 @@
+{% extends 'base.html' %}
+
+{% block title %}Your shopping cart{% endblock %}
+
+{% block content %}
+
+{% include 'partials/_alerts.html' %}
+
+<section class="padding-y bg-light">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-9">
+                <div class="card">
+                    <div class="content-body">
+                        <h4 class="card-title mb-4">Your shopping cart</h4>
+                        {% for item in cart %}
+                        {% with product=item.product %}
+                        <article class="row gy-3 mb-4">
+                            <div class="col-lg-4">
+                                <figure class="itemside me-lg-5">
+                                    <div class="aside">
+                                        <img src="{{ product.image.url }}" class="img-sm img-thumbnail">
+                                    </div>
+                                    <figcaption class="info">
+                                        <a href="{{ product.get_absolute_url }}" class="title text-decoration-none">{{ product.name }}</a>
+                                    </figcaption>
+                                </figure>
+                            </div>
+                            <div class="col-lg-4">
+                                <form action="{% url 'carts:cart_add' product.id %}" method="post">
+                                    {% csrf_token %}
+                                    {{ item.update_quantity_form.quantity }}
+                                    {{ item.update_quantity_form.override }}
+                                    <input type="submit" value="Update" class="btn btn-info">
+                                </form>
+                            </div>
+                            <div class="col-lg-2">
+                                <div class="price-wrap lh-sm">
+                                    <var class="price h6">&#8358;{{ item.total_price }}</var> <br>
+                                    <small class="text-muted">&#8358;{{ item.price }} / per item </small>
+                                </div>
+                            </div>
+                            <div class="col-lg-2">
+                                <div class="float-lg-end">
+                                    <form action="{% url 'carts:cart_remove' product.id %}" method="post">
+                                        {% csrf_token %}
+                                        <input type="submit" value="Remove" class="btn btn-light text-danger">
+                                    </form>
+                                </div>
+                            </div>
+                        </article>
+                        {% endwith %}
+                        {% empty %}
+                        <p>You do not have any product in your cart. Continue shopping</p>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            <aside class="col-lg-3">
+
+                <div class="card">
+                    <div class="card-body">
+                        <dl class="dlist-align">
+                            <dt>Total price:</dt>
+                            <dd class="text-end"> &#8358;{{ cart.get_total_price }}</dd>
+                        </dl>
+                        <hr>
+                        <dl class="dlist-align">
+                            <dt>Total:</dt>
+                            <dd class="text-end text-dark h5"> &#8358;{{ cart.get_total_price }} </dd>
+                        </dl>
+
+                        <div class="d-grid gap-2 my-3">
+                            <a href="{% url 'orders:create' %}" class="btn btn-success w-100">Checkout</a>
+                            <a href="#" class="btn btn-light w-100">Continue shopping</a>
+                        </div>
+                    </div>
+                </div>
+            </aside>
+        </div>
+    </div>
+</section>
+
+{% endblock %}
