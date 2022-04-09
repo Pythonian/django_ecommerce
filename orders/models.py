@@ -22,7 +22,7 @@ class Order(models.Model):
 
     user = models.ForeignKey(
         User, on_delete=models.CASCADE, related_name='orders',
-        blank=True, null=True)
+        blank=True, null=True) # models.SET_NULL
     # full_name?
     first_name = models.CharField(max_length=50)
     last_name = models.CharField(max_length=50)
@@ -39,7 +39,7 @@ class Order(models.Model):
     status = models.CharField(
         choices=ORDER_STATUS, max_length=10, default=CREATED)
     note = models.TextField(blank=True)
-    # transaction_id
+    # transaction_id = models.CharField(max_length=200, blank=True, null=True)
     vendors = models.ManyToManyField(Vendor, related_name='orders')
 
     class Meta:
@@ -69,6 +69,8 @@ class OrderItem(models.Model):
         Vendor, related_name='items',
         on_delete=models.CASCADE,
         blank=True, null=True) # remove this
+    created = models.DateTimeField(auto_now_add=True)
+    updated = models.DateTimeField(auto_now=True)
     # vendor_paid = models.BooleanField(default=False)
     # status?
 

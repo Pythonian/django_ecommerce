@@ -148,17 +148,28 @@
                         <blockquote class="border-bottom">
                             {% if not review.user == request.user %}
                             <div class="float-lg-end d-flex mb-3">
-                                <span id="thumbs" data-value="{{ review.id }}"></span>
+                                <span class="thumbs" id="thumbs" data-value="{{ review.id }}" data-action="add"></span>
                                 <div class="btn-group d-inline-flex me-2"> 
-                                    <a class="btn btn-light btn-sm float-end thumbaction" href="" value="thumbsup" data-bs-toggle="tooltip" data-bs-title="I like this" role="button" id="thumbsup"> 
+                                    <button data-review="{{ review.id }}" data-action="thumbsup" class="btn btn-light btn-sm float-end thumbaction" value="thumbsup" data-bs-toggle="tooltip" data-bs-title="I like this" role="button" id="thumbsup"> 
                                         <i class="fa fa-thumbs-up" id="thumbsup"></i> 
                                         <span id="up">{{ review.thumbsup }}</span>
-                                    </a> 
-                                    <a class="btn btn-light btn-sm float-end thumbaction" href="" value="thumbsdown" data-bs-toggle="tooltip" data-bs-title="I dislike this" id="thumbsdown"> 
+                                    </button> 
+                                    <button data-review="{{ review.id }}" data-action="thumbsdown" class="btn btn-light btn-sm float-end thumbaction" value="thumbsdown" data-bs-toggle="tooltip" data-bs-title="I dislike this" id="thumbsdown"> 
                                         <i class="fa fa-thumbs-down" id="thumbsdown"></i> 
                                         <span id="down">{{ review.thumbsdown }}</span>
-                                    </a>
+                                    </button>
                                 </div>
+                                <!-- <span class="thumbs" id="thumbs" data-value="{{ review.id }}" data-action="add"></span>
+                                <div class="btn-group d-inline-flex me-2"> 
+                                    <button data-review="{{ review.id }}" data-action="thumbsup" class="btn btn-light btn-sm float-end thumbaction" value="thumbsup" data-bs-toggle="tooltip" data-bs-title="I like this" role="button" id="thumbsup"> 
+                                        <i class="fa fa-thumbs-up" id="thumbsup"></i> 
+                                        <span id="up">{{ review.thumbsup }}</span>
+                                    </button> 
+                                    <button data-review="{{ review.id }}" data-action="thumbsdown" class="btn btn-light btn-sm float-end thumbaction" value="thumbsdown" data-bs-toggle="tooltip" data-bs-title="I dislike this" id="thumbsdown"> 
+                                        <i class="fa fa-thumbs-down" id="thumbsdown"></i> 
+                                        <span id="down">{{ review.thumbsdown }}</span>
+                                    </button>
+                                </div> -->
                             </div>
                             {% endif %}
                             <div class="icontext"> 
@@ -232,12 +243,10 @@
 
 {% block scripts %}
 <script>
-    $(document).ready(function () {
-        $('.thumbaction').click(function(e) {
-            // get the id of the review in question
-            var reviewid = document.getElementById("thumbs").getAttribute("data-value");
-            // capture the value of the button whether thumbsup or thumbsdown
-            var button = $(this).attr("value");
+$(document).ready(function () {
+    let thumbBtns = document.getElementsByClassName("thumbaction");
+    for (let i = 0; i < thumbBtns.length; i++) {
+        thumbBtns[i].addEventListener('click', function(e){
             e.preventDefault();
             $.ajax({
                 type: "POST",
@@ -245,10 +254,12 @@
                 url: "{% url 'products:vote_review' %}",
                 // data to be sent across to django view
                 data: {
-                    reviewid: reviewid,
+                    // get the id of the review in question
+                    reviewid: this.dataset.review,
+                    // capture the value of the button whether thumbsup or thumbsdown
+                    button: this.dataset.action,
                     csrfmiddlewaretoken: $("input[name=csrfmiddlewaretoken]").val(),
                     action: "thumbs",
-                    button: button,
                 },
                 success: function(json) {
                     // update data returned from Django
@@ -256,16 +267,48 @@
                     document.getElementById("down").innerHTML = json["down"]
                     // $("#fathumbs").removeClass("text-primary");
                     // $("#fathumbs").addClass("text-primary");
-                    if (json["remove"] == "none") {
-                        $("#" + button).removeClass("text-primary");
-                    } else {
-                        $("#" + button).addClass("text-primary");
-                    }
                 },
                 error: function(xhr, errmsg, err) {}
             });
         });
-    });
+    }
+})
+
+
+    // $(document).ready(function () {
+    //     $('.thumbaction').click(function(e) {
+    //         // get the id of the review in question
+    //         var reviewid = document.getElementById("thumbs").getAttribute("data-value");
+    //         // capture the value of the button whether thumbsup or thumbsdown
+    //         var button = $(this).attr("value");
+    //         e.preventDefault();
+    //         $.ajax({
+    //             type: "POST",
+    //             // URL to send the post information to
+    //             url: "{% url 'products:vote_review' %}",
+    //             // data to be sent across to django view
+    //             data: {
+    //                 reviewid: reviewid,
+    //                 csrfmiddlewaretoken: $("input[name=csrfmiddlewaretoken]").val(),
+    //                 action: "thumbs",
+    //                 button: button,
+    //             },
+    //             success: function(json) {
+    //                 // update data returned from Django
+    //                 document.getElementById("up").innerHTML = json["up"]
+    //                 document.getElementById("down").innerHTML = json["down"]
+    //                 // $("#fathumbs").removeClass("text-primary");
+    //                 // $("#fathumbs").addClass("text-primary");
+    //                 if (json["remove"] == "none") {
+    //                     $("#" + button).removeClass("text-primary");
+    //                 } else {
+    //                     $("#" + button).addClass("text-primary");
+    //                 }
+    //             },
+    //             error: function(xhr, errmsg, err) {}
+    //         });
+    //     });
+    // });
 </script>
 
 {% endblock %}

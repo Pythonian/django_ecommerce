@@ -174,14 +174,13 @@ def deactivate(request):
     return redirect('home')
 
 
-@login_required
 def vendor_profile(request, username):
     user = get_object_or_404(
         User, username=username)
     products = Product.objects.filter(
         vendor=user)
     product_count = products.count()
-    products = mk_paginator(request, products, 1)
+    products = mk_paginator(request, products, 4)
 
     template = 'vendor/profile.html'
     context = {

@@ -8,7 +8,7 @@
 
 <div class="container py-5">
     <div class="row">
-        <div class="col-4">
+        <div class="col-lg-4">
             <div class="card bg-light">
                 <article class="p-4 text-center">
                     {% if user.vendor.image %}
@@ -39,5 +39,20 @@
         </main>
     </div>
 </div>
+
+{% endblock %}
+
+
+{% block scripts %}
+<script type="text/javascript">
+    var addCartBtns = document.getElementsByClassName("add-cart")
+    for (var i = 0; i < addCartBtns.length; i++) {
+        addCartBtns[i].addEventListener('click', function(){
+            var productId = this.dataset.product
+            var action = this.dataset.action
+            console.log('productId:', productId, 'Action:', action)
+        })
+    }
+</script>
 
 {% endblock %}

@@ -9,10 +9,10 @@
         </aside>
         <div class="col-xl-9 col-md-8 border-start">
             <div class="card-body">
-                <a href="#" class="btn btn-light btn-icon float-end"><i class="fa fa-shopping-cart"></i></a>
+                <button class="btn btn-light btn-icon float-end add-cart" data-product="{{ product.id }}" data-action="add"><i class="fa fa-shopping-cart"></i></button>
                 <h5><a href="{% url 'products:detail' product.slug %}" class="title mb-2">{{ product.name }}</a></h5>
                 <div class="price-wrap me-3">
-                    <span class="price">&#8358;{{ product.price }}</span>
+                    <span class="price">&#8358;{{ product.price|floatformat:2 }}</span>
                 </div>
                 <div class="rating-wrap mb-2">
                     <div class="rating-star">
