@@ -10,7 +10,6 @@
             </div>
             {% if not request.user.is_vendor %}
             <div>
-                <!-- <a href="#" class="btn btn-sm btn-outline-danger">Cancel order</a> -->
                 <a href="{% url 'orders:track_order' order.id %}" class="btn btn-sm btn-primary">Track order</a>
             </div>
             {% else %}
@@ -45,7 +44,27 @@
             </div>
         </div>
         <hr>
-        <ul class="row">
+        <div class="row">
+            <ul class="steps-wrap mx-auto">
+                <li class="step {% if order.status == 'Created' or order.status == 'Processing' or order.status == 'Shipped' or order.status == 'Completed' %}active{% endif %}"> 
+                    <span class="icon">1</span> 
+                    <span class="text">Order created</span> 
+                </li>
+                <li class="step {% if order.status == 'Processing' or order.status == 'Shipped' or order.status == 'Completed' %}active{% endif %}"> 
+                    <span class="icon">2</span> 
+                    <span class="text">Order processed</span> 
+                </li>
+                <li class="step {% if order.status == 'Shipped' or order.status == 'Completed' %}active{% endif %}"> 
+                    <span class="icon">3</span> 
+                    <span class="text">Order shipped</span> 
+                </li>
+                <li class="step {% if order.status == 'Completed' %}active{% endif %}"> 
+                    <span class="icon">4</span> 
+                    <span class="text">Order completed</span> 
+                </li>
+            </ul>
+        </div>
+        <!-- <ul class="row">
             {% for item in order.items.all %}
             <li class="col-lg-4">
                 <figure class="itemside mb-3">
@@ -59,6 +78,6 @@
                 </figure>
             </li>
             {% endfor %}
-        </ul>
+        </ul> -->
     </div>
 </article>

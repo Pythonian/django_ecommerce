@@ -1,47 +1,10 @@
-{% load static %}
-<header class="section-header">
-    <section class="header-top-light border-bottom">
-        <div class="container">
-            <nav class="d-flex align-items-center flex-column flex-md-row">
-                <div class="nav me-md-auto"> 
-                    <div class="nav-item dropdown"> 
-                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false"> &#8358; NGR </a>
-                        <ul class="dropdown-menu">
-                            <li> <a class="dropdown-item" href="#">$ USD</a> </li>
-                        </ul>
-                    </div>
-                    <div class="nav-item dropdown"> 
-                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false"> English </a>
-                        <ul class="dropdown-menu">
-                            <li> <a class="dropdown-item" href="#">Igbo</a> </li>
-                            <li> <a class="dropdown-item" href="#">Yoruba</a> </li>
-                        </ul>
-                    </div>
-                </div>
-                <ul class="nav">
-                    {% if not request.user.is_authenticated %}
-                    <li class="nav-item"> 
-                        <a href="{% url 'accounts:vendor_signup' %}" class="nav-link"> <i class="fas fa-store"></i> Become a Vendor </a>
-                    </li>
-                    {% endif %}
-                    {% if request.user.is_authenticated and request.user.is_vendor %}
-                    <li class="nav-item"> 
-                        <a href="{% url 'products:create' %}" class="nav-link"> <i class="fa fa-upload"></i> Upload a Product </a>
-                    </li>
-                    {% endif %}
-                </ul>
-            </nav>
-        </div>
-    </section>
-</header>
-
-<header class="section-header">
-    <section class="header-main border-bottom">
+<header>
+    <section class="py-3 border-bottom">
         <div class="container">
             <div class="row g-3 align-items-center">
                 <div class="col-lg-2 col-sm-3 col-4"> 
-                    <a href="" class="brand-wrap"> 
-                        <img class="logo" height="40" src="https://via.placeholder.com/120x40"> 
+                    <a href="{% url 'home' %}"> 
+                        <img height="40" src="https://via.placeholder.com/120x40"> 
                     </a>
                 </div>
                 <div class="col-lg-5 col-sm-5 col-8">
@@ -54,30 +17,30 @@
                 </div>
 
                 <div class="col-lg-5 col-sm-4 col-12">
-                    <div class="widgets-wrap float-md-end">
-                        {% if not request.user.is_vendor %}
-                        <div class="widget-header me-2">
-                            {% with total_items=cart|length %}
-                            <a href="{% url 'carts:cart_detail' %}" class="btn btn-light position-relative"> 
-                                <i class="fa fa-shopping-cart"></i> 
-                                <span class="ms-1">Cart </span>  
-                                <b class="notify"> {% if total_items > 0 %}{{ total_items }}{% else %}0{% endif %} </b> 
-                            </a>
-                            {% endwith %}
+                    <div class="float-md-end">
+                        <div class="d-inline-block position-relative align-middle me-2">
+                            {% if not request.user.is_vendor %}
+                                {% with total_items=cart|length %}
+                                <a href="{% url 'carts:cart_detail' %}" class="btn btn-light position-relative"> 
+                                    <i class="fa fa-shopping-cart"></i> 
+                                    <span class="ms-1">Cart </span>  
+                                    <b style="font-size: 12px;" class="lh-1 py-1 rounded-pill px-2 d-inline-block text-center text-white bg-danger position-absolute top-0 start-100 translate-middle"> {% if total_items > 0 %}{{ total_items }}{% else %}0{% endif %} </b> 
+                                </a>
+                                {% endwith %}
+                            {% else %}
+                                <a href="{% url 'products:create' %}" class="btn btn-light">
+                                    <i class="fa fa-upload"></i> Upload a Product 
+                                </a>
+                            {% endif %}
                         </div>
-                        {% endif %}
+                        
                         {% if request.user.is_authenticated %}
-                        <div class="widget-header me-2">
+                        <div class="d-inline-block position-relative align-middle me-2">
                             {% if request.user.is_customer %}
                             <a href="{% url 'accounts:customer' %}" class="btn btn-light">
                                 <i class="fa fa-user"></i> My Account
                             </a>
                             {% else %}
-                            <!-- <a href="" class="btn btn-light position-relative"> 
-                                <i class="fa fa-shopping-basket"></i> 
-                                <span class="ms-1">Orders </span>  
-                                <b class="notify">2</b> 
-                            </a> -->
                             <a href="{% url 'accounts:vendor' %}" class="btn btn-light">
                                 <i class="fa fa-bars"></i> Dashboard
                             </a>
@@ -92,23 +55,23 @@
 
     <nav class="navbar navbar-light bg-white navbar-expand-lg border-bottom">
         <div class="container"> 
-            <button class="navbar-toggler border" type="button" data-bs-toggle="collapse" data-bs-target="#navbar_main6" aria-expanded="false" aria-label="Toggle navigation"> 
+            <button class="navbar-toggler border" type="button" data-bs-toggle="collapse" data-bs-target="#navbarmenu" aria-expanded="false" aria-label="Toggle navigation" aria-controls="navbarmenu"> 
                 <span class="navbar-toggler-icon"> </span> 
             </button>
-            <div class="collapse navbar-collapse">
+            <div class="collapse navbar-collapse" id="navbarmenu">
                 <ul class="navbar-nav">
-                    <li class="nav-item"> <a class="nav-link title ps-0" href="/"> Home </a> </li>
-                    <li class="nav-item"> <a class="nav-link title" href="{% url 'products:list' %}">Products</a> </li>
-                    <li class="nav-item"> <a class="nav-link title" href="{% url 'accounts:vendors' %}">Vendors</a> </li>
+                    <li class="nav-item"> <a class="nav-link ps-0" href="{% url 'home' %}"> Home </a> </li>
+                    <li class="nav-item"> <a class="nav-link" href="{% url 'products:list' %}">Products</a> </li>
+                    <li class="nav-item"> <a class="nav-link" href="{% url 'accounts:vendors' %}">Vendors</a> </li>
                 </ul>
-                <div class="navbar-nav ms-auto">
+                <ul class="navbar-nav ms-auto">
                     {% if not request.user.is_authenticated %}
-                    <a class="nav-link title" href="{% url 'accounts:login' %}">Login</a> 
-                    <a class="nav-link title" href="{% url 'accounts:customer_signup' %}">Register</a>
+                    <li class="nav-item"> <a class="nav-link" href="{% url 'accounts:login' %}">Login</a></li> 
+                    <li class="nav-item"> <a class="nav-link" href="{% url 'accounts:customer_signup' %}">Register</a></li>
                     {% else %}
-                    <a class="nav-link title" href="{% url 'accounts:logout' %}">Logout</a>
+                    <li class="nav-item"> <a class="nav-link" href="{% url 'accounts:logout' %}">Logout</a></li>
                     {% endif %}
-                </div>
+                </ul>
             </div>
         </div>
     </nav>

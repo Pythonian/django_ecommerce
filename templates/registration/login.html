@@ -12,7 +12,7 @@
             <div class="col-lg-5 col-md-6 mx-auto">
                 <div class="card my-4 p-3">
                     <div class="card-body">
-                        <h4 class="mb-4">Sign in</h4>
+                        <h4 class="mb-4">Login</h4>
                         <form method="post" action="" novalidate>
                             {% csrf_token %}
                             {% include 'partials/_form_errors.html' %}
@@ -27,7 +27,7 @@
                             </div>
                             <div class="mb-3"> 
                                 <label for="id_password" class="form-label">Password:</label> 
-                                <a class="float-end title" href="#">Forgot password?</a> 
+                                <a class="float-end" href="#">Forgot password?</a> 
                                 <input type="password" name="password" autocomplete="current-password" required id="id_password" class="form-control {% if form.password.errors %}is-invalid{% endif %}" placeholder="******">
         						{% for error in form.password.errors %}
                                 <div class="invalid-feedback">
@@ -38,13 +38,16 @@
                             <button class="btn w-100 btn-primary" type="submit" id="login" disabled>Login</button>      
                             <input type="hidden" name="next" value="{{ next }}">
                         </form>
-                        <p class="text-divider my-4">New to shop?</p>
+                        <div class="position-relative d-flex align-items-center justify-content-center text-center flex-row">
+                            <div class="position-absolute border-top w-100"></div>
+                            <p class="my-4 text-muted d-inline-block position-relative bg-white p-2">New to shop?</p>
+                        </div>
                         <div class="row">
-                            <div class="col-6">
+                            <div class="col-lg-6">
                                 <a class="w-100 btn btn-light" href="{% url 'accounts:customer_signup' %}">Customer signup</a>
                             </div>
-                            <div class="col-6">
-                                <a class="w-100 btn btn-light" href="{% url 'accounts:vendor_signup' %}">Become a Vendor</a>
+                            <div class="col-lg-6">
+                                <a class="w-100 btn btn-light" href="{% url 'accounts:vendor_signup' %}">Become a vendor</a>
                             </div>
                         </div>
                     </div>

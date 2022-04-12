@@ -6,7 +6,7 @@
 
 {% include 'partials/_alerts.html' %}
 
-<section class="section-intro bg-primary padding-y">
+<section class="bg-primary py-3">
     <div class="container">
         <div class="my-5">
             <h1 class="text-white"> Best products &amp; <br> brands in our store </h1>
@@ -15,7 +15,7 @@
             <a href="{% url 'accounts:vendor_signup' %}" class="btn btn-warning"> Become a Vendor </a>
             <a href="{% url 'accounts:customer_signup' %}" class="btn btn-light"> Register as a Customer </a>
             {% else %}
-            <a href="" class="btn btn-warning"> Browse Products </a>
+            <a href="{% url 'products:list' %}" class="btn btn-warning"> Browse Products </a>
             {% endif %}
         </div>
     </div>
@@ -34,19 +34,5 @@
 
     </div>
 </section>
-
-{% endblock %}
-
-{% block scripts %}
-<script type="text/javascript">
-    var addCartBtns = document.getElementsByClassName("add-cart")
-    for (var i = 0; i < addCartBtns.length; i++) {
-        addCartBtns[i].addEventListener('click', function(){
-            var productId = this.dataset.product
-            var action = this.dataset.action
-            console.log('productId:', productId, 'Action:', action)
-        })
-    }
-</script>
 
 {% endblock %}

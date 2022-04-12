@@ -4,9 +4,7 @@
 
 {% block content %}
 <div class="container py-4">
-	<h2 class="title-page">
-        {% if category %}{{ category.name }}{% else %}All Products{% endif %}
-    </h2>
+	<h2>{% if category %}{{ category.name }}{% else %}All Products{% endif %}</h2>
 </div>
 
 <div class="container">

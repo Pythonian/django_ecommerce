@@ -9,10 +9,10 @@
 <section class="py-5 bg-light">
     <div class="container">
         <div class="row">
-            <main class="col-xl-8 col-lg-8">
+            <main class="col-lg-8">
                 {% if not request.user.is_authenticated %}
                 <article class="card mb-4">
-                    <div class="content-body">
+                    <div class="card-body p-4">
                         <div class="float-end">
                             <a href="{% url 'accounts:customer_signup' %}?next={% url 'orders:create' %}" class="btn btn-outline-info">Register</a>
                             <a href="{% url 'accounts:login' %}?next={% url 'orders:create' %}" class="btn btn-outline-primary">Login</a>
@@ -23,9 +23,9 @@
                 </article>
                 {% endif %}
                 <article class="card">
-                    <form method="post" action="">
+                    <form method="post" action="" novalidate>
                         {% csrf_token %}
-                        <div class="content-body">
+                        <div class="card-body p-4">
                             <h5 class="mb-4">{% if not request.user.is_authenticated %}Guest {% endif %} Checkout</h5>
                             <div class="row">
                                 <div class="col-6 mb-3">
@@ -57,39 +57,39 @@
                             <hr class="my-4">
 
                             <div class="float-end mb-4">
-                                <a href="#" class="btn btn-light">Cancel</a>
+                                <a href="{% url 'carts:cart_detail' %}" class="btn btn-light">Cancel</a>
                                 <button type="submit" class="btn btn-success">Continue</button>
                             </div>
                         </div>
                     </form>
                 </article>
             </main>
-            <!-- col.// -->
-            <aside class="col-xl-4 col-lg-4">
-                <article class="ms-lg-4 mt-4 mt-lg-0" style="max-width: 320px">
+            
+            <aside class="col-lg-4">
+                <article class="ms-lg-4 mt-4 mt-lg-0">
                     <h6 class="card-title">Summary</h6>
 
-                    <dl class="dlist-align">
-                        <dt>Total price:</dt>
-                        <dd class="text-end">&#8358;{{ cart.get_total_price }}</dd>
+                    <dl class="d-flex">
+                        <dt class="fw-normal">Total price:</dt>
+                        <dd class="text-end flex-grow-1 mb-0">&#8358;{{ cart.get_total_price }}</dd>
                     </dl>
                     <hr>
-                    <dl class="dlist-align">
-                        <dt> Total: </dt>
-                        <dd class="text-end"> <strong class="text-dark">&#8358;{{ cart.get_total_price }}</strong> </dd>
+                    <dl class="d-flex">
+                        <dt class="fw-normal"> Total: </dt>
+                        <dd class="text-end flex-grow-1 mb-0 h6">&#8358;{{ cart.get_total_price }}</dd>
                     </dl>
 
                     <hr>
                     <h6 class="mb-4">Items in cart</h6>
                     {% for item in cart %}
-                    <figure class="itemside align-items-center mb-4">
-                        <div class="aside">
-                            <b class="badge bg-secondary rounded-pill">{{ item.quantity }}</b>
+                    <figure class="position-relative d-flex w-100 align-items-center mb-4">
+                        <div class="position-relative flex-shrink-0">
+                            <b class="badge bg-secondary rounded-pill position-absolute top-0 start-100 translate-middle">{{ item.quantity }}</b>
                             <img src="{{ item.product.image.url }}" class="img-sm rounded border">
                         </div>
-                        <figcaption class="info">
+                        <figcaption class="flex-grow-1 ps-3">
                             <a href="{{ item.get_absolute_url }}" class="text-decoration-none">{{ item.product.name }}</a>
-                            <div class="price text-muted">Total: &#8358;{{ item.total_price }}</div>
+                            <div class="text-muted">Total: &#8358;{{ item.total_price }}</div>
                         </figcaption>
                     </figure>
                     {% endfor %}

@@ -35,7 +35,7 @@ def order_create(request):
                         price=item['price'],
                         vendor=item['product'].vendor.vendor,
                         quantity=item['quantity'])
-                    order.vendors.add(item['product'].vendor)
+                    order.vendors.add(item['product'].vendor.vendor)
 
             # clear the cart
             cart.clear()
