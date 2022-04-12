@@ -134,6 +134,10 @@ def product_search(request):
 # @vendor_required
 def product_create(request):
     """ View to enable a Vendor upload a product. """
+    if not request.user.vendor.is_verified:
+        messages.success(
+            request, 'Your account is yet to be verified, hence you can not upload a product.')
+        return redirect('home')
     if request.method == 'POST':
         form = ProductForm(request.POST, request.FILES)
         if form.is_valid():
