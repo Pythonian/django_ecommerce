@@ -7,16 +7,15 @@ from django_ecommerce.utils import mk_paginator
 from products.models import Product
 from orders.models import Order
 
+from .decorators import redirect_authenticated_user
 from .models import User, Vendor
 from .forms import (
     CustomerSignUpForm, VendorSignUpForm, UserForm,
     CustomerForm, VendorForm)
 
 
+@redirect_authenticated_user
 def vendor_signup(request):
-    if request.user.is_authenticated:
-        return redirect("home")
-
     if request.method == "POST":
         form = VendorSignUpForm(request.POST, request.FILES)
         if form.is_valid():
@@ -41,10 +40,8 @@ def vendor_signup(request):
     return render(request, template_name, context)
 
 
+@redirect_authenticated_user
 def customer_signup(request):
-    if request.user.is_authenticated:
-        return redirect("home")
-
     if request.method == "POST":
         form = CustomerSignUpForm(request.POST)
         if form.is_valid():

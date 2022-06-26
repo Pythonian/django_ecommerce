@@ -67,8 +67,7 @@ class OrderItem(models.Model):
         blank=True, null=True)
     vendor = models.ForeignKey(
         Vendor, related_name='items',
-        on_delete=models.CASCADE,
-        blank=True, null=True) # remove this
+        on_delete=models.CASCADE)
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
     # vendor_paid = models.BooleanField(default=False)

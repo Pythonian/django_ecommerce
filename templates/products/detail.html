@@ -146,7 +146,7 @@
                 <div class="card mb-4">
                     <div class="card-body">
                         <blockquote class="border-bottom">
-                            {% if not review.user == request.user %}
+                            {% if request.user.is_authenticated and not review.user == request.user %}
                             <div class="float-lg-end d-flex mb-3">
                                 <span class="thumbs" id="thumbs" data-value="{{ review.id }}" data-action="add"></span>
                                 <div class="btn-group d-inline-flex me-2"> 

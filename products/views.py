@@ -19,7 +19,7 @@ def product_list(request, category_slug=None):
     products = Product.objects.filter(is_available=True)
     if category_slug:
         category = get_object_or_404(Category, slug=category_slug)
-        products = Product.objects.filter(category=category)
+        products = category.products.filter(is_available=True)
     product_count = products.count()
     products = mk_paginator(request, products, 3)
 
@@ -37,8 +37,7 @@ def product_list(request, category_slug=None):
 def product_detail(request, slug):
     product = get_object_or_404(Product, slug=slug)
     cart_product_form = CartAddProductForm()
-    reviews = Review.objects.filter(
-        product_id=product.id, is_visible=True)
+    reviews = product.reviews.filter(is_visible=True)
 
     # Check if the user has ordered for this item before
     # so that only users who have ordered item can post review
@@ -116,8 +115,7 @@ def product_search(request):
     if 'keyword' in request.GET:
         keyword = request.GET['keyword']
         if keyword:
-            products = Product.objects.order_by(
-                'created').filter(name__icontains=keyword)
+            products = Product.objects.filter(name__icontains=keyword)
             product_count = products.count()
             products = mk_paginator(request, products, 1)
 
@@ -180,6 +178,23 @@ def product_update(request, id):
     return render(request, template_name, context)
 
 
+def product_delete(request, id):
+    # Use a Modal instead?
+    product = get_object_or_404(Product, id=id, vendor=request.user)
+    if request.method == 'POST':
+        product.delete()
+        messages.success(
+            request, "Your product has been deleted.")
+        return redirect(product)
+
+    template_name = "products/delete.html"
+    context = {
+        'product': product,
+    }
+
+    return render(request, template_name, context)
+
+
 @login_required
 def vote_review(request):
     if request.POST.get("action") == "thumbs":
@@ -195,7 +210,7 @@ def vote_review(request):
                 review_id=id) & Q(user_id=request.user.id))
             user_vote = q.vote
 
-            if user_vote == True:
+            if user_vote is True:
                 # If user presses thumbs up again
                 if button == "thumbsup":
                     update.thumbsup = F("thumbsup") - 1
@@ -207,7 +222,8 @@ def vote_review(request):
                     # delete the previous thumb action
                     q.delete()
 
-                    return JsonResponse({"up": up, "down": down, "remove": "none"})
+                    return JsonResponse(
+                        {"up": up, "down": down, "remove": "none"})
 
                 if button == "thumbsdown":
                     # Change vote
@@ -228,7 +244,7 @@ def vote_review(request):
 
             pass
 
-            if user_vote == False:
+            if user_vote is False:
                 if button == "thumbsup":
                     # Change vote in review
                     update.thumbsup = F("thumbsup") + 1
@@ -256,7 +272,8 @@ def vote_review(request):
                     down = update.thumbsdown
                     q.delete()
 
-                    return JsonResponse({"up": up, "down": down, "remove": "none"})
+                    return JsonResponse(
+                        {"up": up, "down": down, "remove": "none"})
 
         else:
             # New selection

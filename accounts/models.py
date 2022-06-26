@@ -25,9 +25,9 @@ class Vendor(models.Model):
     #     validators=[MinLengthValidator(11), MaxLengthValidator(11)])
     # shop_logo = models.ImageField('logo', null=True, blank=True)
     # phone_regex = RegexValidator(
-    #     regex=r'^\+?880?\d{9,11}$',
+    #     regex=r'^\+?234?\d{10,11}$',
     #     message="Phone number must be entered in the format:
-    #               '+8801234233566'. Up to 11 digits allowed.")
+    #               '+2341234233566'. Up to 11 digits allowed.")
     # mobile_number = models.CharField(
     #     validators=[phone_regex], max_length=17, null=True)
     government_id = models.FileField(upload_to='identification')
@@ -57,6 +57,10 @@ class Customer(models.Model):
     # country = models.CharField(max_length=100, blank=True)
     state = models.CharField(
         max_length=20, blank=True, null=True)
+
+    @property
+    def email(self):
+        return f"{self.user.email}"
 
     def __str__(self):
         return f"{self.user.username} profile"

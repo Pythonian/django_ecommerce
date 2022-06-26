@@ -1,7 +1,8 @@
-# from django.core.validators import MinValueValidator, MaxValueValidator
+# from django.core.validators import MinValueValidator, MaxValueValidator, FileExtensionValidators
 from django.db import models
 from django.db.models import Avg, Count
 from django.urls import reverse
+# from django.utils import timezone
 from django.utils.text import slugify
 from django.utils.translation import gettext_lazy as _
 
@@ -28,7 +29,17 @@ class Category(models.Model):
             "format: required, letters, numbers, underscore, or hyphens"
         ),
     )
-    # description / image
+    description = models.TextField(
+        max_length=1000,
+        verbose_name=_("category description"),
+        blank=True,
+        help_text=_("format: not required, max-1000"),
+    )
+    # image = models.ImageField(
+    #     verbose_name=_("image"),
+    #     help_text=_("Upload a category image"),
+    #     upload_to="categories/",
+    # )
 
     class Meta:
         ordering = ("name",)
@@ -55,7 +66,7 @@ class Product(models.Model):
         verbose_name=_("category"),
         help_text=_("format: required"),
     )
-    # uuid
+    # uuid, impressions
     name = models.CharField(
         max_length=255,
         verbose_name=_("name"),
@@ -117,7 +128,13 @@ class Product(models.Model):
         related_name=_("products"),
         on_delete=models.CASCADE
     )
+    # trailer = models.FileField(
+    #     upload_to='trailers',
+    #     blank=True, null=True,
+    #     validators=[FileExtensionValidator(allowed_extensions=['mp4'])]
+    # )
     created = models.DateTimeField(
+        # defaul=timezone.now,
         auto_now_add=True,
         verbose_name=_("created"),
         help_text=_("format: Y-m-d H:M:S"),
@@ -163,8 +180,10 @@ class Product(models.Model):
 
 
 class Review(models.Model):
-    product = models.ForeignKey(Product, on_delete=models.CASCADE)
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    product = models.ForeignKey(
+        Product, on_delete=models.CASCADE, related_name='reviews')
+    user = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name='reviews')
     subject = models.CharField(max_length=100)
     content = models.TextField(max_length=500)
     rating = models.FloatField()

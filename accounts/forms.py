@@ -5,27 +5,6 @@ from django.db import transaction
 from .models import User, Customer, Vendor
 
 
-# class VendorSignUpForm(UserCreationForm):
-#     email = forms.EmailField(required=True)
-
-#     def __init__(self, *args, **kwargs):
-#         super().__init__(*args, **kwargs)
-#         for field in self.visible_fields():
-#             field.field.widget.attrs['class'] = 'form-control'
-#             field.field.help_text = None
-
-#     class Meta(UserCreationForm.Meta):
-#         model = User
-#         fields = ['username', 'email', 'password1', 'password2']
-
-#     def save(self, commit=True):
-#         user = super().save(commit=False)
-#         user.is_vendor = True
-#         if commit:
-#             user.save()
-#         return user
-
-
 class VendorSignUpForm(UserCreationForm):
     email = forms.EmailField(required=True)
     address = forms.CharField(max_length=200)
