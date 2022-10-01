@@ -1,10 +1,13 @@
 # from django.core.validators import MinValueValidator, MaxValueValidator, FileExtensionValidators
+from django.core.files import File
 from django.db import models
 from django.db.models import Avg, Count
 from django.urls import reverse
 # from django.utils import timezone
 from django.utils.text import slugify
 from django.utils.translation import gettext_lazy as _
+from io import BytesIO
+from PIL import Image
 
 from accounts.models import User
 
@@ -35,6 +38,7 @@ class Category(models.Model):
         blank=True,
         help_text=_("format: not required, max-1000"),
     )
+    # ordering = models.PositiveIntegerField(default=0)
     # image = models.ImageField(
     #     verbose_name=_("image"),
     #     help_text=_("Upload a category image"),
@@ -43,6 +47,7 @@ class Category(models.Model):
 
     class Meta:
         ordering = ("name",)
+        # ordering = ['ordering']
         verbose_name = _("category")
         verbose_name_plural = _("categories")
 
@@ -101,6 +106,10 @@ class Product(models.Model):
         help_text=_("Upload a product image"),
         upload_to="images/",
     )
+    thumbnail = models.ImageField(
+        verbose_name=_("thumbnail"),
+        upload_to="thumbnails/",
+    )
     alt_text = models.CharField(
         verbose_name=_("Alternative text"),
         help_text=_("Please add alternative text"),
@@ -124,7 +133,7 @@ class Product(models.Model):
         help_text=_("format: required, default-0"),
     )
     vendor = models.ForeignKey(
-        User,
+        User, #Vendor
         related_name=_("products"),
         on_delete=models.CASCADE
     )
@@ -154,6 +163,28 @@ class Product(models.Model):
     def get_absolute_url(self):
         return reverse('products:detail',
                        kwargs={'slug': self.slug})
+
+    def get_thumbnail(self):
+        if self.thumbnail:
+            return self.thumbnail.url
+        else:
+            if self.image:
+                self.thumbnail = self.make_thumbnail(self.image)
+                self.save()
+                return self.thumbnail.url
+            else:
+                return 'https://via.placeholder.com/240x180.jpg'
+
+    def make_thumbnail(self, image, size=(240, 180)):
+        img = Image.open(image)
+        img.convert('RGB')
+        img.thumbnail(size)
+        
+        thumb_io = BytesIO()
+        img.save(thumb_io, 'JPEG', quality=85)
+
+        thumbnail = File(thumb_io, name=image.name)
+        return thumbnail
 
     def average_review(self):
         reviews = Review.objects.filter(

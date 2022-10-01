@@ -12,7 +12,7 @@ class CustomerAdmin(admin.ModelAdmin):
 
 @admin.register(Vendor)
 class VendorAdmin(admin.ModelAdmin):
-    list_display = ['user']
+    list_display = ['company_name']
     list_filter = ['is_verified']
 
     def save_model(self, request, obj, form, change):

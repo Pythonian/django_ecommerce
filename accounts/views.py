@@ -203,7 +203,7 @@ def vendors(request):
 @login_required
 def vendor_products(request):
     products = Product.objects.filter(
-        vendor=request.user)
+        vendor=request.user.vendor)
 
     template = 'vendor/products.html'
     context = {

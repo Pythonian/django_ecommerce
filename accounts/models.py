@@ -35,7 +35,7 @@ class Vendor(models.Model):
     is_verified = models.BooleanField(default=False)
 
     def __str__(self):
-        return f"{self.user.username} profile"
+        return self.company_name
 
 
 class Customer(models.Model):
