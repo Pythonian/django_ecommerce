@@ -70,7 +70,7 @@ class OrderItem(models.Model):
         on_delete=models.CASCADE)
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
-    # vendor_paid = models.BooleanField(default=False)
+    vendor_paid = models.BooleanField(default=False)
     # status?
 
     def __str__(self):

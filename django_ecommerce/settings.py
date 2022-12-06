@@ -143,3 +143,7 @@ EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 MESSAGE_TAGS = {
     messages.ERROR: 'danger',
 }
+
+SESSION_COOKIE_AGE = 86400 # 1 day
+
+CART_SESSION_ID = 'cart'

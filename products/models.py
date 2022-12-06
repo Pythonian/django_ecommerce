@@ -1,4 +1,4 @@
-# from django.core.validators import MinValueValidator, MaxValueValidator, FileExtensionValidators
+from django.core.validators import MinValueValidator, MaxValueValidator, FileExtensionValidator
 from django.core.files import File
 from django.db import models
 from django.db.models import Avg, Count
@@ -38,6 +38,10 @@ class Category(models.Model):
         blank=True,
         help_text=_("format: not required, max-1000"),
     )
+    # image
+    # created
+    # updated; max_pricel discount_price; You save (function), check Amazon/Jumia for more ideas
+    # short_description; long_description; tags
     # ordering = models.PositiveIntegerField(default=0)
     # image = models.ImageField(
     #     verbose_name=_("image"),
@@ -64,6 +68,8 @@ class Product(models.Model):
     Product details table
     """
 
+    # create status_choice for products: active, deleted, waiting approval ???
+    # product managers?
     category = models.ForeignKey(
         Category,
         on_delete=models.PROTECT,
@@ -137,11 +143,11 @@ class Product(models.Model):
         related_name=_("products"),
         on_delete=models.CASCADE
     )
-    # trailer = models.FileField(
-    #     upload_to='trailers',
-    #     blank=True, null=True,
-    #     validators=[FileExtensionValidator(allowed_extensions=['mp4'])]
-    # )
+    trailer = models.FileField(
+        upload_to='trailers',
+        blank=True, null=True,
+        validators=[FileExtensionValidator(allowed_extensions=['mp4'])]
+    )
     created = models.DateTimeField(
         # defaul=timezone.now,
         auto_now_add=True,
@@ -219,6 +225,7 @@ class Review(models.Model):
     content = models.TextField(max_length=500)
     rating = models.FloatField()
     ip = models.GenericIPAddressField(blank=True, null=True)
+    #image; video
     user_agent_data = models.CharField(
         max_length=255, blank=True, null=True)
     thumbsup = models.IntegerField(default="0")
@@ -245,3 +252,11 @@ class ReviewVote(models.Model):
         default=None, blank=True)
     vote = models.BooleanField(default=True)
     
+
+class ProductImage(models.Model):
+    product = models.ForeignKey(Product, related_name='images', on_delete=models.CASCADE)
+    image = models.ImageField(upload_to='images/')
+    thumbnail = models.ImageField(
+        verbose_name=_("thumbnail"),
+        upload_to="thumbnails/",
+    )

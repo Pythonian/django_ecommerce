@@ -1,8 +1,7 @@
 from decimal import Decimal
+from django.conf import settings
 
 from products.models import Product
-
-CART_SESSION_ID = 'cart'
 
 
 class Cart(object):
@@ -12,10 +11,10 @@ class Cart(object):
         Initialize the cart.
         """
         self.session = request.session
-        cart = self.session.get(CART_SESSION_ID)
+        cart = self.session.get(settings.CART_SESSION_ID)
         if not cart:
             # save an empty cart in the session
-            cart = self.session[CART_SESSION_ID] = {}
+            cart = self.session[settings.CART_SESSION_ID] = {}
         self.cart = cart
 
     def __iter__(self):
@@ -50,10 +49,18 @@ class Cart(object):
         if product_id not in self.cart:
             self.cart[product_id] = {'quantity': 0,
                                       'price': str(product.price)}
+
         if override_quantity:
             self.cart[product_id]['quantity'] = quantity
         else:
             self.cart[product_id]['quantity'] += quantity
+
+        # Alternative. Put quantity:1 in Line 50
+        # if override_quantity:
+        #     self.cart[product_id]['quantity'] += int(quantity)
+        #     if self.cart[product_id]['quantity'] == 0:
+        #         self.remove(product_id)
+
         self.save()
 
     def save(self):
@@ -71,7 +78,7 @@ class Cart(object):
 
     def clear(self):
         """ Remove cart from user session """
-        del self.session[CART_SESSION_ID]
+        del self.session[settings.CART_SESSION_ID]
         self.save()
 
     def get_total_price(self):

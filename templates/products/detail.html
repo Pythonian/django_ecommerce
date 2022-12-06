@@ -197,6 +197,8 @@
                         <p class="mb-0"><i class="me-2 text-success fa fa-thumbs-up"></i> {{ review.thumbsup }} person{{ review.thumbsup|pluralize }} found this review useful</p>
                     </div>
                 </div>
+                {% empty %} 
+                <p>No review yet. Be the first to review this product.</p>
                 {% endfor %}
             </div>
             <div class="col-lg-4">
@@ -217,6 +219,7 @@
                     </div>
                 </div>
 
+                {% if similar_products %}
                 <div class="card">
                     <div class="card-body">
                         <h5 class="card-title mb-3">Related Products</h5>
@@ -234,6 +237,8 @@
                         {% endfor %}
                     </div>
                 </div>
+                {% endif %} 
+
             </div>
         </div>
     </div>

@@ -6,7 +6,8 @@
                     Order ID: {{ order.id }} &bull;
                     <span class="text-success">{{ order.get_status_display }}</span>
                 </h6>
-                <span class="text-muted">Date: {{ order.created|date:"j F Y" }}</span>
+                <span class="text-muted">Date: {{ order.created|date:"j F Y" }}</span> |
+                <span class="text-muted">{% if order.fully_paid %}Paid{% endif %}</span>
             </div>
             {% if not request.user.is_vendor %}
             <div>
@@ -64,8 +65,10 @@
                 </li>
             </ul>
         </div>
-        <!-- <ul class="row">
+        <hr>
+        <ul class="row">
             {% for item in order.items.all %}
+            {% if item.vendor == vendor %}
             <li class="col-lg-4">
                 <figure class="itemside mb-3">
                     <div class="aside">
@@ -77,7 +80,8 @@
                     </figcaption>
                 </figure>
             </li>
+            {% endif %}
             {% endfor %}
-        </ul> -->
+        </ul>
     </div>
 </article>

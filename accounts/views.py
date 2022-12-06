@@ -203,7 +203,7 @@ def vendors(request):
 @login_required
 def vendor_products(request):
     products = Product.objects.filter(
-        vendor=request.user.vendor)
+        vendor=request.user)
 
     template = 'vendor/products.html'
     context = {
@@ -217,12 +217,24 @@ def vendor_products(request):
 def vendor_orders(request):
     vendor = request.user.vendor
     orders = vendor.orders.all()
+    # get only the items sold by a user in a particular order.
+
+    for order in orders:
+        order.vendor_amount = 0
+        order.vendor_paid_amount = 0
+        order.fully_paid = True
+        for item in order.items.all():
+            if item.vendor_paid:
+                order.vendor_paid_amount += item.get_cost()
+            else:
+                order.vendor_amount += item.get_cost()
+                order.fully_paid = False
 
     template = 'vendor/orders.html'
     context = {
         'orders': orders,
+        'vendor': vendor,
         'orders_count': orders.count()
-
     }
 
     return render(request, template, context)

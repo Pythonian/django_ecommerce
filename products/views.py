@@ -140,7 +140,7 @@ def product_create(request):
         form = ProductForm(request.POST, request.FILES)
         if form.is_valid():
             product = form.save(commit=False)
-            product.vendor = request.user.vendor
+            product.vendor = request.user
             product.save()
             messages.success(
                 request, "Your product has been successfully created.")

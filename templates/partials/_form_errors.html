@@ -15,3 +15,13 @@
         </div>
     {% endif %}
 {% endfor %}
+
+{% if form.errors %}
+<div class="alert alert-danger" role="alert">
+    {% for field in form %}
+    {% for error in field.errors %}
+    <p {% if forloop.last %}class="mb-0" {% endif %}>{{ field.label }}: {{ error }}</p>
+    {% endfor %}
+    {% endfor %}
+</div>
+{% endif %}
