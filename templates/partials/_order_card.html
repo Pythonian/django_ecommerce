@@ -18,9 +18,34 @@
                 <div class="dropdown btn btn-light btn-sm float-end"> 
                     <a href="#" data-bs-toggle="dropdown" aria-expanded="false" id="moreOptions"><i class="fa fa-ellipsis-v"></i></a>
                     <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="moreOptions">
-                        <li><a class="dropdown-item {% if order.status == 'Processing' or order.status == 'Shipped' or order.status == 'Completed' %}disabled{% endif %}" href="{% url 'orders:order_status_processing' order.id %}">Order Processing</a></li>
+                        <!-- <li><a class="dropdown-item {% if order.status == 'Processing' or order.status == 'Shipped' or order.status == 'Completed' %}disabled{% endif %}" href="{% url 'orders:order_status_processing' order.id %}">Order Processing</a></li>                        
                         <li><a class="dropdown-item {% if order.status == 'Shipped' or order.status == 'Completed' %}disabled{% endif %}" href="{% url 'orders:order_status_shipped' order.id %}">Order Shipped</a></li>
-                        <li><a class="dropdown-item {% if order.status == 'Completed' %}disabled{% endif %}" href="{% url 'orders:order_status_completed' order.id %}">Order Completed</a></li>
+                        <li><a class="dropdown-item {% if order.status == 'Completed' %}disabled{% endif %}" href="{% url 'orders:order_status_completed' order.id %}">Order Completed</a></li> -->
+
+                        {% if order.status == 'Created' %}
+                        <li><a class="dropdown-item" href="{% url 'orders:order_status_processing' order.id %}">Order Processing</a></li>
+                        <li><a class="dropdown-item disabled" href="{% url 'orders:order_status_shipped' order.id %}">Order Shipped</a></li>
+                        <li><a class="dropdown-item disabled" href="{% url 'orders:order_status_completed' order.id %}">Order Completed</a></li>
+                        
+                        {% elif order.status == 'Processing' %}
+                        <li><a class="dropdown-item disabled" href="{% url 'orders:order_status_processing' order.id %}">Order Processing</a></li>
+                        <li><a class="dropdown-item" href="{% url 'orders:order_status_shipped' order.id %}">Order Shipped</a></li>
+                        <li><a class="dropdown-item disabled" href="{% url 'orders:order_status_completed' order.id %}">Order Completed</a></li>
+
+                        {% elif order.status == 'Shipped' %}
+                        <li><a class="dropdown-item disabled" href="{% url 'orders:order_status_processing' order.id %}">Order Processing</a>
+                        </li>
+                        <li><a class="dropdown-item disabled" href="{% url 'orders:order_status_shipped' order.id %}">Order Shipped</a></li>
+                        <li><a class="dropdown-item" href="{% url 'orders:order_status_completed' order.id %}">Order Completed</a></li>
+
+                        {% elif order.status == 'Completed' %}
+                        <li><a class="dropdown-item disabled" href="{% url 'orders:order_status_processing' order.id %}">Order Processing</a>
+                        </li>
+                        <li><a class="dropdown-item disabled" href="{% url 'orders:order_status_shipped' order.id %}">Order Shipped</a></li>
+                        <li><a class="dropdown-item disabled" href="{% url 'orders:order_status_completed' order.id %}">Order Completed</a></li>
+
+                        {% endif %}
+                        
                     </ul>
                 </div>
             </div>

@@ -33,6 +33,7 @@
                             <li class="step {% if order.status == 'Completed' %}active{% endif %}"> 
                                 <span class="icon">4</span> 
                                 <span class="text">Order completed</span> 
+                                <span class="text {% if order.status == 'Completed' %}fw-bold{% endif %}">(Order to be delivered on {{ order.delivery_date|date:"F j, Y" }})</span>
                             </li>
                         </ul>
                     </div>

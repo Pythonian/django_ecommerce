@@ -15,7 +15,6 @@
                         <h4 class="mb-4">Login</h4>
                         <form method="post" action="" novalidate>
                             {% csrf_token %}
-                            {% include 'partials/_form_errors.html' %}
                             <div class="mb-3">
                                 <label class="form-label" for="id_username">Username</label>
                                 <input type="text" name="username" autofocus autocapitalize="none" autocomplete="username" maxlength="150" placeholder="Enter your username" class="form-control {% if form.username.errors %}is-invalid{% endif %}" required id="id_username" {% if form.username.value != None %}value="{{ form.username.value|stringformat:'s' }}"{% endif %}>

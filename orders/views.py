@@ -4,7 +4,8 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.conf import settings
 from django.core.mail import EmailMultiAlternatives
 from django.template.loader import render_to_string
-
+from django.core.mail import send_mail
+import datetime
 from carts.cart import Cart
 
 from .models import OrderItem, Order
@@ -25,7 +26,6 @@ def notify_customer(order):
 def notify_vendor(order):
     from_email = settings.DEFAULT_FROM_EMAIL
     for vendor in order.vendors.all():
-        print(vendor.user.email)
         to_email = vendor.user.email
         subject = 'New Order'
         text_content = 'You have a new order.'
@@ -111,6 +111,15 @@ def order_status_shipped(request, id):
     current_url = request.META['HTTP_REFERER']
     order.status = order.SHIPPED
     order.save()
+    from_email = settings.DEFAULT_FROM_EMAIL
+    to_email = order.email
+    send_mail(
+        'Order Status Information',
+        'Hi there, your order status has been changed to: SHIPPED',
+        from_email,
+        [to_email],
+        fail_silently=False,
+    )
     messages.success(
         request, "Order status changed to: Shipped")
     return redirect(current_url)
