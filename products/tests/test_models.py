@@ -1,9 +1,12 @@
 from django.test import TestCase
 from django.urls import reverse
 from django.utils import timezone
-from shop.models import Category, Product
+from django.contrib.auth.models import User
 
-class CategoryTest(TestCase):
+from ..models import Category, Product
+
+
+class TestCategoryModel(TestCase):
 
     def create_category(self, name="test"):
         return Category.objects.create(name=name)
@@ -13,15 +16,17 @@ class CategoryTest(TestCase):
         self.assertTrue(isinstance(c, Category))
         self.assertEqual(c.__str__(), c.name)
 
-class ProductTest(TestCase):
+
+class TestProductModel(TestCase):
     
     def setUp(self):
-        self.category = Category.objects.create(name='fastfood', slug='fastfood',)
+        self.category = Category.objects.create(name='fastfood', slug='fastfood')
+        User.objects.create(username='vendor')
     
-    def create_product(self, name="product", price=20):
-        return Product.objects.create(category=self.category, name=name, price=price, created=timezone.now(), updated=timezone.now())
+    def create_product(self, name="product"):
+        return Product.objects.create(category=self.category, name=name, price='20.00', created=timezone.now(), updated=timezone.now())
 
     def test_product_creation(self):
         p = self.create_product()
         self.assertTrue(isinstance(p, Product))
-        self.assertEqual(p.__str__(), p.name)
+        self.assertEqual(str(p), 'product')

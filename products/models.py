@@ -138,6 +138,7 @@ class Product(models.Model):
         verbose_name=_("units sold to date"),
         help_text=_("format: required, default-0"),
     )
+    in_stock = models.BooleanField(default=True)
     vendor = models.ForeignKey(
         User, #Vendor
         related_name=_("products"),
