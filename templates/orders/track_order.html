@@ -20,11 +20,11 @@
                         <ul class="steps-wrap mx-auto">
                             <li class="step {% if order.status == 'Created' or order.status == 'Processing' or order.status == 'Shipped' or order.status == 'Completed' %}active{% endif %}"> 
                                 <span class="icon">1</span> 
-                                <span class="text">Order created</span> 
+                                <span class="text">Order received</span> 
                             </li>
                             <li class="step {% if order.status == 'Processing' or order.status == 'Shipped' or order.status == 'Completed' %}active{% endif %}"> 
                                 <span class="icon">2</span> 
-                                <span class="text">Order processed</span> 
+                                <span class="text">Order processing</span> 
                             </li>
                             <li class="step {% if order.status == 'Shipped' or order.status == 'Completed' %}active{% endif %}"> 
                                 <span class="icon">3</span> 
@@ -32,10 +32,25 @@
                             </li>
                             <li class="step {% if order.status == 'Completed' %}active{% endif %}"> 
                                 <span class="icon">4</span> 
-                                <span class="text">Order completed</span> 
-                                <span class="text {% if order.status == 'Completed' %}fw-bold{% endif %}">(Order to be delivered on {{ order.delivery_date|date:"F j, Y" }})</span>
+                                <span class="text">Order delivered</span> 
+                                <span class="text {% if order.status == 'Completed' %}fw-bold{% endif %}">(Order to be delivered on {{ order.delivery_date|date:"F j, Y"}})</span>
                             </li>
                         </ul>
+
+                        <!-- <ul class="list-unstyled steps-wrap m-0 p-0 mt-5 position-relative d-flex mx-auto">
+                            <li class="w-100 text-center position-relative flex-grow-1 lh-base step {% if order.status == 'Created' or order.status == 'Processing' or order.status == 'Shipped' or order.status == 'Completed' %}active{% endif %}"> 
+                                <span class="icon">1</span> 
+                                <span class="text-muted d-block pt-2 text-center">Order received</span> 
+                            </li>
+                            <li class="w-100 text-center position-relative flex-grow-1 lh-base step {% if order.status == 'Shipped' or order.status == 'Completed' %}active{% endif %}"> 
+                                <span class="icon">2</span> 
+                                <span class="text-muted d-block pt-2 text-center">Processing</span> 
+                            </li>
+                            <li class="w-100 text-center position-relative flex-grow-1 lh-base step {% if order.status == 'Completed' %}active{% endif %}"> 
+                                <span class="icon">3</span> 
+                                <span class="text-muted d-block pt-2 text-center">Delivered</span> 
+                            </li>
+                        </ul> -->
                     </div>
                 </article>
             </div>

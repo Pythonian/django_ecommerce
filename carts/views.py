@@ -15,7 +15,7 @@ def cart_add(request, product_id):
     for existing products.
     """
     cart = Cart(request)
-    product = get_object_or_404(Product, id=product_id)
+    product = get_object_or_404(Product, id=product_id, is_approved=True)
     form = CartAddProductForm(request.POST)
     if form.is_valid():
         cd = form.cleaned_data

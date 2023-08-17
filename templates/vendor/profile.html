@@ -12,7 +12,7 @@
             <div class="card bg-light">
                 <article class="p-4 text-center">
                     {% if user.vendor.image %}
-                    <img src="{{ user.vendor.image.url }}" class="img-fluid">
+                    <img class="img-fluid" src="{{ user.vendor.image.url }}">
                     {% endif %}
                     <h4 class="card-title mt-3">{{ user.vendor.company_name }} <small><i class="fa fa-check text-primary"></i></small></h4>
                     <p>{{ user.vendor.about }}</p>

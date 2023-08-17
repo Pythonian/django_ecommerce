@@ -1,38 +1,16 @@
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.shortcuts import render, get_object_or_404, redirect
-from django.conf import settings
-from django.core.mail import EmailMultiAlternatives
-from django.template.loader import render_to_string
 from django.core.mail import send_mail
-import datetime
+from django.views.decorators.csrf import csrf_exempt
+from django.utils.crypto import get_random_string
+from django.urls import reverse
+from django.conf import settings
+
 from carts.cart import Cart
 
 from .models import OrderItem, Order
 from .forms import OrderCreateForm
-
-
-def notify_customer(order):
-    from_email = settings.DEFAULT_FROM_EMAIL
-    to_email = order.email
-    subject = 'Order confirmation'
-    text_content = 'Thank you for your order.'
-    html_content = render_to_string('orders/email_notify_customer.html', {'order': order})
-    msg = EmailMultiAlternatives(subject, text_content, from_email, [to_email])
-    msg.attach_alternative(html_content, 'text/html')
-    msg.send()
-
-
-def notify_vendor(order):
-    from_email = settings.DEFAULT_FROM_EMAIL
-    for vendor in order.vendors.all():
-        to_email = vendor.user.email
-        subject = 'New Order'
-        text_content = 'You have a new order.'
-        html_content = render_to_string('orders/email_notify_vendor.html', {'order': order, 'vendor': vendor})
-        msg = EmailMultiAlternatives(subject, text_content, from_email, [to_email])
-        msg.attach_alternative(html_content, 'text/html')
-        msg.send()
 
 
 def order_create(request):
@@ -44,6 +22,7 @@ def order_create(request):
             if request.user.is_authenticated:
                 order.user = request.user
             order.save()
+            request.session['order_id'] = order.id
 
             for item in cart:
                 if request.user.is_authenticated:
@@ -52,30 +31,20 @@ def order_create(request):
                         product=item['product'],
                         price=item['price'],
                         user=request.user,
-                        # vendor=item['product'].vendor,
                         vendor=item['product'].vendor.vendor,
-                        vendor_paid=True,
                         quantity=item['quantity'])
-                    # order.vendors.add(item['product'].vendor)
                     order.vendors.add(item['product'].vendor.vendor)
                 else:
                     OrderItem.objects.create(
                         order=order,
                         product=item['product'],
                         price=item['price'],
-                        vendor_paid=True,
                         vendor=item['product'].vendor.vendor,
                         quantity=item['quantity'])
                     order.vendors.add(item['product'].vendor.vendor)
 
             # clear the cart
             cart.clear()
-
-            # Send email
-            notify_customer(order)
-            notify_vendor(order)
-
-            # return a redirect instead; get the order id from user session
             return render(request,
                           'orders/created.html',
                           {'order': order})
@@ -98,6 +67,43 @@ def order_create(request):
 
 
 @login_required
+def confirm_order(request):
+    order_id = request.session.get('order_id')
+    order = get_object_or_404(order, id=order_id)
+
+    paystack_amount = int(order.get_total_cost * 100)
+    paystack_ref = None
+    if not paystack_ref:
+        paystack_ref = get_random_string(length=12).upper()
+        order.paystack_id = paystack_ref
+        order.total_amount = order.get_total_cost
+        order.save()
+    paystack_redirect_url = "{}?amount={}".format(
+        reverse('paystack:verify_payment',
+                args=[paystack_ref]), paystack_amount, order)
+
+    template = 'orders/confirm_order.html'
+    context = {'order': order,
+                   'paystack_key': settings.PAYSTACK_PUBLIC_KEY,
+                   'paystack_amount': paystack_amount,
+                   'paystack_redirect_url': paystack_redirect_url
+    }
+    return render(request, template, context)
+
+
+@csrf_exempt
+def payment_done(request):
+    order_id = request.session.get('order_id')
+    order = get_object_or_404(order, id=order_id)
+    return render(request, 'orders/invoice.html', {'order': order})
+
+
+@csrf_exempt
+def payment_canceled(request):
+    return render(request, 'orders/canceled.html')
+
+
+@login_required
 def track_order(request, id):
     order = get_object_or_404(Order, id=id)
 
@@ -111,14 +117,15 @@ def order_status_shipped(request, id):
     current_url = request.META['HTTP_REFERER']
     order.status = order.SHIPPED
     order.save()
+    # send mail to user to inform him/her of change in order status
     from_email = settings.DEFAULT_FROM_EMAIL
     to_email = order.email
     send_mail(
-        'Order Status Information',
+        'Order status information',
         'Hi there, your order status has been changed to: SHIPPED',
         from_email,
         [to_email],
-        fail_silently=False,
+        fail_silently=False
     )
     messages.success(
         request, "Order status changed to: Shipped")
@@ -131,6 +138,16 @@ def order_status_processing(request, id):
     current_url = request.META['HTTP_REFERER']
     order.status = order.PROCESSING
     order.save()
+    # send mail to user to inform him/her of change in order status
+    from_email = settings.DEFAULT_FROM_EMAIL
+    to_email = order.email
+    send_mail(
+        'Order status information',
+        'Hi there, your order status has been changed to: PROCESSING',
+        from_email,
+        [to_email],
+        fail_silently=False
+    )
     messages.success(
         request, "Order status changed to: Processing")
     return redirect(current_url)
@@ -142,6 +159,16 @@ def order_status_completed(request, id):
     current_url = request.META['HTTP_REFERER']
     order.status = order.COMPLETED
     order.save()
+    # send mail to user to inform him/her of change in order status
+    from_email = settings.DEFAULT_FROM_EMAIL
+    to_email = order.email
+    send_mail(
+        'Order status information',
+        'Hi there, your order has successfully been completed.',
+        from_email,
+        [to_email],
+        fail_silently=False
+    )
     messages.success(
         request, "Order status changed to: Completed")
     return redirect(current_url)

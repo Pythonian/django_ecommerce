@@ -15,7 +15,7 @@ class ProductForm(forms.ModelForm):
     class Meta:
         model = Product
         fields = ['name', 'category', 'description', 'price',
-                  'image', 'alt_text', 'is_available', 'units']
+                  'image', 'alt_text', 'is_available']
 
 
 class ReviewForm(forms.ModelForm):

@@ -11,8 +11,8 @@
         <div class="row">
             <aside class="col-lg-6">
                 <article class="gallery-wrap">
-                    <div class="img-big-wrap img-thumbnail">
-                        <img height="560" src="{{ product.image.url }}"> 
+                    <div class="1img-big-wrap img-thumbnail">
+                        <img class="img-fluid" height="560" src="{{ product.image.url }}"> 
                     </div>
                 </article>
             </aside>
@@ -87,7 +87,7 @@
                                 </blockquote>
                             </div>
                         </div>
-                    {% else %}
+                    {% elif product.vendor != request.user %}
                         <h5 id="review">Write Your Review</h5>
                         <p class="p-0 m-0"> How do you rate this product? </p>
                         <form action="." method="POST" class="mb-5" novalidate>
@@ -197,8 +197,6 @@
                         <p class="mb-0"><i class="me-2 text-success fa fa-thumbs-up"></i> {{ review.thumbsup }} person{{ review.thumbsup|pluralize }} found this review useful</p>
                     </div>
                 </div>
-                {% empty %} 
-                <p>No review yet. Be the first to review this product.</p>
                 {% endfor %}
             </div>
             <div class="col-lg-4">
@@ -219,7 +217,6 @@
                     </div>
                 </div>
 
-                {% if similar_products %}
                 <div class="card">
                     <div class="card-body">
                         <h5 class="card-title mb-3">Related Products</h5>
@@ -231,14 +228,12 @@
                             <div class="info"> 
                                 <a href="{{ p.get_absolute_url }}" class="title mb-1">{{ p.name }}</a>
                                 <div class="price mb-1">&#8358;{{ p.price }}</div>
-                                <!-- <a href="#" class="btn btn-outline-primary btn-sm"> Add to cart </a> -->
+                                <a href="#" class="btn btn-outline-primary btn-sm"> Add to cart </a>
                             </div>
                         </article>
                         {% endfor %}
                     </div>
                 </div>
-                {% endif %} 
-
             </div>
         </div>
     </div>

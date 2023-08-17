@@ -1,0 +1,93 @@
+{% extends 'base.html' %}
+
+{% block title %}Checkout{% endblock %}
+
+{% block content %}
+
+{% include 'partials/_alerts.html' %}
+
+<section class="py-5 bg-light">
+    <div class="container">
+        <div class="row">
+            <main class="col-lg-8">
+                <article class="card">
+                    <form method="post" action="" novalidate>
+                        {% csrf_token %}
+                        <div class="card-body p-4">
+                            <h5 class="mb-4">Confirm Order</h5>
+                            <div class="row">
+                                <div class="col-6 mb-3">
+                                    <label for="id_first_name" class="form-label">First name</label>
+                                    <input type="text" class="form-control" value="{{ order.first_name }}" readonly>
+                                </div>
+                                <div class="col-6">
+                                    <label for="id_last_name" class="form-label">Last name</label>
+                                    <input type="text" class="form-control" value="{{ order.last_name }}" readonly>
+                                </div>
+                                <div class="col-sm-8 mb-3">
+                                    <label for="id_address" class="form-label">Address</label>
+                                    <input type="text" class="form-control" value="{{ order.address }}" readonly>
+                                </div>
+                                <div class="col-sm-4 col-6 mb-3">
+                                    <label for="id_postal_code" class="form-label">Postal code</label>
+                                    <input type="text" class="form-control" value="{{ order.postal_code }}" readonly>
+                                </div>
+                                <div class="col-3 mb-3">
+                                    <label for="id_city" class="form-label">City</label>
+                                    <input type="text" class="form-control" value="{{ order.city }}" readonly>
+                                </div>
+                                <div class="col-9 mb-3">
+                                    <label for="id_email" class="form-label">Email</label>
+                                    <input type="text" class="form-control" value="{{ order.email }}" readonly>
+                                </div>
+                            </div>
+
+                            <hr class="my-4">
+
+                            <!-- <div class="float-end mb-4">
+                                <a href="{% url 'carts:cart_detail' %}" class="btn btn-light">Cancel</a>
+                                <button type="submit" class="btn btn-success">Continue</button>
+                            </div> -->
+                            <form>
+                                <script src="https://js.paystack.co/v1/inline.js"></script>
+                                <button type="button" onclick="payWithPaystack()"> Pay With Paystack </button>
+                            </form>
+                        </div>
+                    </form>
+                </article>
+            </main>
+            
+            <aside class="col-lg-4">
+                <article class="ms-lg-4 mt-4 mt-lg-0">
+                    <h6 class="card-title">Summary</h6>
+
+                    <dl class="d-flex">
+                        <dt class="fw-normal">Total price:</dt>
+                        <dd class="text-end flex-grow-1 mb-0">&#8358;{{ order.get_total_cost }}</dd>
+                    </dl>
+                    <hr>
+                </article>
+            </aside>
+        </div>
+    </div>
+</section>
+
+<script>
+    function payWithPaystack() {
+        var handler = PaystackPop.setup({
+            key: '{{ paystack_key }}',
+            email: '{{ order.email }}',
+            amount: {{ paystack_amount }},
+            reference: '' + Math.floor((Math.random() * 1000000000) + 1),
+            callback: function(response) {
+                window.location.href = "{{ paystack_redirect_url }}&trxref=" + response.reference
+            },
+            onClose: function() {
+                alert('Your transaction was either aborted or not completed, this window would be closed.');
+            }
+        });
+        handler.openIframe();
+    }
+</script>
+
+{% endblock %}

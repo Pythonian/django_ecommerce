@@ -1,4 +1,4 @@
-from django.core.validators import MinValueValidator, MaxValueValidator, FileExtensionValidator
+# from django.core.validators import MinValueValidator, MaxValueValidator, FileExtensionValidators
 from django.core.files import File
 from django.db import models
 from django.db.models import Avg, Count
@@ -38,10 +38,6 @@ class Category(models.Model):
         blank=True,
         help_text=_("format: not required, max-1000"),
     )
-    # image
-    # created
-    # updated; max_pricel discount_price; You save (function), check Amazon/Jumia for more ideas
-    # short_description; long_description; tags
     # ordering = models.PositiveIntegerField(default=0)
     # image = models.ImageField(
     #     verbose_name=_("image"),
@@ -63,13 +59,16 @@ class Category(models.Model):
         return self.name
 
 
+class ProductManager(models.Manager):
+    def get_queryset(self):
+        return super().get_queryset().filter(is_available=True)
+
+
 class Product(models.Model):
     """
     Product details table
     """
 
-    # create status_choice for products: active, deleted, waiting approval ???
-    # product managers?
     category = models.ForeignKey(
         Category,
         on_delete=models.PROTECT,
@@ -79,12 +78,14 @@ class Product(models.Model):
     )
     # uuid, impressions
     name = models.CharField(
+        unique=True,
         max_length=255,
         verbose_name=_("name"),
         help_text=_("format: required, max-255"),
         db_index=True,
     )
     slug = models.SlugField(
+        unique=True,
         max_length=255,
         verbose_name=_("product safe URL"),
         help_text=_(
@@ -109,46 +110,48 @@ class Product(models.Model):
     )
     image = models.ImageField(
         verbose_name=_("image"),
-        help_text=_("Upload a product image"),
+        # help_text=_("Upload a product image. It should not be more than 2MB and should be in High Definition (HD)."),
         upload_to="images/",
     )
     thumbnail = models.ImageField(
         verbose_name=_("thumbnail"),
         upload_to="thumbnails/",
+        null=True,
+        blank=True,
     )
     alt_text = models.CharField(
         verbose_name=_("Alternative text"),
-        help_text=_("Please add alternative text"),
+        help_text=_("Please add alternative text (Optional):"),
         max_length=255,
         null=True,
         blank=True,
     )
+    is_approved = models.BooleanField(default=False)
     is_available = models.BooleanField(
         default=True,
         verbose_name=_("product availability"),
-        help_text=_("format: true=product available"),
     )
-    units = models.IntegerField(
-        default=0,
-        verbose_name=_("units"),
-        help_text=_("format: required, default-0"),
-    )
+    # units = models.IntegerField(
+    #     default=0,
+    #     verbose_name=_("units"),
+    #     help_text=_("format: required, default-0"),
+    # )
     units_sold = models.IntegerField(
         default=0,
         verbose_name=_("units sold to date"),
         help_text=_("format: required, default-0"),
     )
-    in_stock = models.BooleanField(default=True)
     vendor = models.ForeignKey(
         User, #Vendor
         related_name=_("products"),
         on_delete=models.CASCADE
     )
-    trailer = models.FileField(
-        upload_to='trailers',
-        blank=True, null=True,
-        validators=[FileExtensionValidator(allowed_extensions=['mp4'])]
-    )
+    featured = models.BooleanField(default=False)
+    # trailer = models.FileField(
+    #     upload_to='trailers',
+    #     blank=True, null=True,
+    #     validators=[FileExtensionValidator(allowed_extensions=['mp4'])]
+    # )
     created = models.DateTimeField(
         # defaul=timezone.now,
         auto_now_add=True,
@@ -160,6 +163,9 @@ class Product(models.Model):
         verbose_name=_("date product last updated"),
         help_text=_("format: Y-m-d H:M:S"),
     )
+
+    objects = models.Manager()
+    active = ProductManager()
 
     class Meta:
         ordering = ("-created",)
@@ -226,7 +232,6 @@ class Review(models.Model):
     content = models.TextField(max_length=500)
     rating = models.FloatField()
     ip = models.GenericIPAddressField(blank=True, null=True)
-    #image; video
     user_agent_data = models.CharField(
         max_length=255, blank=True, null=True)
     thumbsup = models.IntegerField(default="0")
@@ -253,11 +258,3 @@ class ReviewVote(models.Model):
         default=None, blank=True)
     vote = models.BooleanField(default=True)
     
-
-class ProductImage(models.Model):
-    product = models.ForeignKey(Product, related_name='images', on_delete=models.CASCADE)
-    image = models.ImageField(upload_to='images/')
-    thumbnail = models.ImageField(
-        verbose_name=_("thumbnail"),
-        upload_to="thumbnails/",
-    )

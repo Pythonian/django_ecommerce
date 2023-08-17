@@ -1,17 +1,9 @@
 from datetime import datetime, timedelta
 from django.db import models
-from django_fsm import FSMField, transition
+
 from accounts.models import User, Vendor
 from products.models import Product
 
-
-# class STATUS(models.TextChoices):
-#     CREATED = 'created', 'Open'
-#     PROCESSING = 'processing', 'Processing'
-#     SHIPPED = 'shipped', 'Shipped'
-#     COMPLETED = 'completed', 'Completed'
-#     CANCELLED = 'cancelled', 'Cancelled'
-#     RETURNED = 'returned', 'Deferred'
 
 class Order(models.Model):
     CREATED = 'Created'
@@ -25,10 +17,9 @@ class Order(models.Model):
         (PROCESSING, 'Processing'),
         (SHIPPED, 'Shipped'),
         (COMPLETED, 'Completed'),
+        # (CANCELLED, 'Cancelled'),
+        # (RETURNED, 'Returned'),
     ]
-    #     (CANCELLED, 'Cancelled'),
-    #     (RETURNED, 'Returned'),
-    # ]
 
     user = models.ForeignKey(
         User, on_delete=models.CASCADE, related_name='orders',
@@ -48,10 +39,13 @@ class Order(models.Model):
     paid = models.BooleanField(default=False)
     status = models.CharField(
         choices=ORDER_STATUS, max_length=10, default=CREATED)
-    # status = FSMField(choices=STATUS.choices, default=STATUS.CREATED)
     note = models.TextField(blank=True)
     delivery_date = models.DateTimeField(default=datetime.now()+timedelta(days=4))
     # transaction_id = models.CharField(max_length=200, blank=True, null=True)
+    total_amount = models.DecimalField(
+        max_digits=12, decimal_places=2,
+        blank=True, null=True)
+    paystack_id = models.CharField(max_length=150, blank=True)
     vendors = models.ManyToManyField(Vendor, related_name='orders')
 
     class Meta:
@@ -62,30 +56,6 @@ class Order(models.Model):
 
     def get_total_cost(self):
         return sum(item.get_cost() for item in self.items.all())
-
-    # @transition(field=status, source=STATUS.CREATED, target=STATUS.PROCESSING)
-    # def created_to_processing(self):
-    #     self.status = STATUS.PROCESSING
-
-    # @transition(field=status, source=STATUS.PROCESSING, target=STATUS.SHIPPED)
-    # def processing_to_shipped(self):
-    #     self.status = STATUS.SHIPPED
-
-    # @transition(field=status, source=STATUS.SHIPPED, target=STATUS.COMPLETED)
-    # def shipped_to_completed(self):
-    #     self.status = STATUS.COMPLETED
-
-    @transition(field=status, source=CREATED, target=PROCESSING)
-    def created_to_processing(self):
-        self.status = self.PROCESSING
-
-    @transition(field=status, source=PROCESSING, target=SHIPPED)
-    def processing_to_shipped(self):
-        self.status = self.SHIPPED
-
-    @transition(field=status, source=SHIPPED, target=COMPLETED)
-    def shipped_to_completed(self):
-        self.status = self.COMPLETED
 
 
 class OrderItem(models.Model):
@@ -106,7 +76,7 @@ class OrderItem(models.Model):
         on_delete=models.CASCADE)
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
-    vendor_paid = models.BooleanField(default=False)
+    # vendor_paid = models.BooleanField(default=False)
     # status?
 
     def __str__(self):

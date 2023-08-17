@@ -1,5 +1,6 @@
 import random
 
+from django.core.mail import mail_admins
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.db.models import F, Q
@@ -16,12 +17,12 @@ from .models import Category, Product, Review, ReviewVote
 def product_list(request, category_slug=None):
     categories = Category.objects.all()
     category = None
-    products = Product.objects.filter(is_available=True)
+    products = Product.objects.filter(is_available=True, is_approved=True)
     if category_slug:
         category = get_object_or_404(Category, slug=category_slug)
-        products = category.products.filter(is_available=True)
+        products = category.products.filter(is_available=True, is_approved=True)
     product_count = products.count()
-    products = mk_paginator(request, products, 3)
+    products = mk_paginator(request, products, 10)
 
     template_name = "products/list.html"
     context = {
@@ -35,7 +36,13 @@ def product_list(request, category_slug=None):
 
 
 def product_detail(request, slug):
-    product = get_object_or_404(Product, slug=slug)
+    if request.user.is_authenticated:
+        if request.user.is_vendor:
+            product = get_object_or_404(Product, slug=slug)
+        else:
+            product = get_object_or_404(Product, slug=slug, is_approved=True)
+    else:
+        product = get_object_or_404(Product, slug=slug, is_approved=True)
     cart_product_form = CartAddProductForm()
     reviews = product.reviews.filter(is_visible=True)
 
@@ -78,7 +85,7 @@ def product_detail(request, slug):
     else:
         review_form = ReviewForm()
 
-    similar_products = list(product.category.products.exclude(
+    similar_products = list(product.category.products.filter(is_approved=True).exclude(
         id=product.id))
 
     if len(similar_products) >= 4:
@@ -117,7 +124,7 @@ def product_search(request):
         if keyword:
             products = Product.objects.filter(name__icontains=keyword)
             product_count = products.count()
-            products = mk_paginator(request, products, 1)
+            products = mk_paginator(request, products, 5)
 
     template_name = "products/search.html"
     context = {
@@ -129,7 +136,7 @@ def product_search(request):
     return render(request, template_name, context)
 
 
-# @vendor_required
+@login_required
 def product_create(request):
     """ View to enable a Vendor upload a product. """
     if not request.user.vendor.is_verified:
@@ -142,8 +149,12 @@ def product_create(request):
             product = form.save(commit=False)
             product.vendor = request.user
             product.save()
+            mail_admins(
+                'A new product was just uploaded',
+                'Please review the recently uploaded product and approve it.',
+                fail_silently=False)
             messages.success(
-                request, "Your product has been successfully created.")
+                request, "Your product has been uploaded but will need to be approved by the admin.")
             return redirect(product)
     else:
         form = ProductForm()
@@ -157,6 +168,7 @@ def product_create(request):
     return render(request, template_name, context)
 
 
+@login_required
 def product_update(request, id):
     """ View to enable a Vendor update a product. """
     product = get_object_or_404(Product, id=id, vendor=request.user)
@@ -178,6 +190,7 @@ def product_update(request, id):
     return render(request, template_name, context)
 
 
+@login_required
 def product_delete(request, id):
     # Use a Modal instead?
     product = get_object_or_404(Product, id=id, vendor=request.user)
@@ -185,7 +198,7 @@ def product_delete(request, id):
         product.delete()
         messages.success(
             request, "Your product has been deleted.")
-        return redirect(product)
+        return redirect('accounts:vendor_products')
 
     template_name = "products/delete.html"
     context = {
