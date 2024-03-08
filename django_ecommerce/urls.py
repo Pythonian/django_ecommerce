@@ -29,8 +29,6 @@ urlpatterns = [
          auth_views.PasswordResetCompleteView.as_view(),
          name='password_reset_complete'),
 
-    path('paystack/', include(('paystack.frameworks.django.urls', 'paystack'), namespace='paystack')),
-
     path('', home, name='home'),
 ]
 
@@ -43,3 +41,29 @@ if settings.DEBUG:
 admin.site.index_title = 'MirajayKart'
 admin.site.site_header = 'MirajayKart Admin'
 admin.site.site_title = 'Control Panel'
+
+
+from django.contrib import admin
+# from django.urls import path, include
+# from django.conf import settings
+# from django.conf.urls.static import static
+
+# urlpatterns = [
+#     path("admin/doc/", include("django.contrib.admindocs.urls")),
+#     path("admin/", admin.site.urls),
+#     # path('paystack/', include(('paystack.frameworks.django.urls', 'paystack'), namespace='paystack')),
+#     path("cart/", include("cart.urls", namespace="cart")),
+#     path("coupons/", include("coupons.urls", namespace="coupons")),
+#     path("orders/", include("orders.urls", namespace="orders")),
+#     path("payment/", include("payment.urls", namespace="payment")),
+#     path("products/", include("products.urls", namespace="products")),
+#     path("", include("core.urls", namespace="core")),
+# ]
+
+# if settings.DEBUG:
+#     urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+#     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
+# admin.site.site_header = "BlueKart Admin"
+# admin.site.index_title = "BlueKart Admin"
+# admin.site.site_title = "BlueKart Administration"

@@ -1,0 +1,86 @@
+version: "3.8"
+
+services:
+
+  db:
+    build:
+      context: ./docker/postgres/
+      dockerfile: dockerfile
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    env_file:
+      - ./docker/postgres/.env
+    container_name: postgres
+    restart: unless-stopped
+
+  redis:
+    image: redis:7.0.11-alpine
+    container_name: redis
+
+  web:
+    build:
+      context: .
+    image: ecomstore_web
+    entrypoint: /home/app/web/docker/entrypoints/web.sh
+    volumes:
+      - static_volume:/home/app/web/staticfiles
+      - ./:/home/app/web
+    expose:
+      - 8000
+    restart: unless-stopped
+    container_name: ecomstore
+    env_file:
+      - ./.env
+    depends_on:
+      - db
+      - redis
+    healthcheck:
+      test: curl --fail http://localhost:8000 || exit 1
+      interval: 10s
+      timeout: 10s
+      start_period: 10s
+      retries: 3
+
+  celery_worker:
+    restart: always
+    build:
+      context: .
+    image: ecomstore_celery_worker
+    entrypoint: /home/app/web/docker/entrypoints/celery.sh
+    container_name: celery
+    env_file:
+      - ./.env
+    depends_on:
+      - redis
+      - db
+      - web
+
+  flower:
+    build:
+      context: .
+    image: ecomstore_flower
+    entrypoint: /home/app/web/docker/entrypoints/flower.sh
+    env_file:
+      - ./.env
+    ports:
+      - 5557:5555
+    depends_on:
+      - redis
+      - db
+
+  nginx:
+    build:
+      context: ./docker/nginx/
+      dockerfile: dockerfile
+    container_name: nginx
+    volumes:
+      - static_volume:/home/app/web/staticfiles
+    ports:
+      - 8000:80
+    depends_on:
+      - web
+    restart: always
+
+volumes:
+  postgres_data:
+  static_volume:

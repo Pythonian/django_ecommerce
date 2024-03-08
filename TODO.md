@@ -13,6 +13,9 @@
 Related products: By category, By vendor
 Checkout form: add more fields
 
+- Introduce ecommerce affiliate, whereby customers can also earn money based on referral purchases
+Follow a vendor to get information about latest products on sale
+
 
 There are several complex features that may exist in a Multi-vendor Ecommerce web application. Here are some examples:
 

@@ -71,22 +71,22 @@ def confirm_order(request):
     order_id = request.session.get('order_id')
     order = get_object_or_404(order, id=order_id)
 
-    paystack_amount = int(order.get_total_cost * 100)
-    paystack_ref = None
-    if not paystack_ref:
-        paystack_ref = get_random_string(length=12).upper()
-        order.paystack_id = paystack_ref
-        order.total_amount = order.get_total_cost
-        order.save()
-    paystack_redirect_url = "{}?amount={}".format(
-        reverse('paystack:verify_payment',
-                args=[paystack_ref]), paystack_amount, order)
+    # paystack_amount = int(order.get_total_cost * 100)
+    # paystack_ref = None
+    # if not paystack_ref:
+    #     paystack_ref = get_random_string(length=12).upper()
+    #     order.paystack_id = paystack_ref
+    #     order.total_amount = order.get_total_cost
+    #     order.save()
+    # paystack_redirect_url = "{}?amount={}".format(
+    #     reverse('paystack:verify_payment',
+    #             args=[paystack_ref]), paystack_amount, order)
 
     template = 'orders/confirm_order.html'
     context = {'order': order,
-                   'paystack_key': settings.PAYSTACK_PUBLIC_KEY,
-                   'paystack_amount': paystack_amount,
-                   'paystack_redirect_url': paystack_redirect_url
+                #    'paystack_key': settings.PAYSTACK_PUBLIC_KEY,
+                #    'paystack_amount': paystack_amount,
+                #    'paystack_redirect_url': paystack_redirect_url
     }
     return render(request, template, context)
 
