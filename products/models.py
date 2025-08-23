@@ -1,4 +1,4 @@
-# from django.core.validators import MinValueValidator, MaxValueValidator, FileExtensionValidators
+from django.core.validators import MinValueValidator, MaxValueValidator, FileExtensionValidators
 from django.core.files import File
 from django.db import models
 from django.db.models import Avg, Count
@@ -32,6 +32,9 @@ class Category(models.Model):
             "format: required, letters, numbers, underscore, or hyphens"
         ),
     )
+    # icon = models.FileField(
+    #     upload_to="icons", validators=[FileExtensionValidator(["svg"])]
+    # )
     description = models.TextField(
         max_length=1000,
         verbose_name=_("category description"),
@@ -47,7 +50,9 @@ class Category(models.Model):
 
     class Meta:
         ordering = ("name",)
-        # ordering = ['ordering']
+        indexes = [
+            models.Index(fields=["name"]),
+        ]
         verbose_name = _("category")
         verbose_name_plural = _("categories")
 
@@ -108,6 +113,7 @@ class Product(models.Model):
             },
         },
     )
+    old_price = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
     image = models.ImageField(
         verbose_name=_("image"),
         # help_text=_("Upload a product image. It should not be more than 2MB and should be in High Definition (HD)."),
@@ -136,6 +142,8 @@ class Product(models.Model):
     #     verbose_name=_("units"),
     #     help_text=_("format: required, default-0"),
     # )
+    sku = models.CharField(max_length=10, unique=True)
+    commission = models.PositiveIntegerField(blank=True, null=True)
     units_sold = models.IntegerField(
         default=0,
         verbose_name=_("units sold to date"),
@@ -171,7 +179,11 @@ class Product(models.Model):
         ordering = ("-created",)
         verbose_name = _("product")
         verbose_name_plural = _("products")
-        # index_together = (('uuid', 'slug'),)
+        indexes = [
+            models.Index(fields=["id", "slug"]),
+            models.Index(fields=["name"]),
+            models.Index(fields=["-created"]),
+        ]
 
     def get_absolute_url(self):
         return reverse('products:detail',

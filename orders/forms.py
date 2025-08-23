@@ -6,6 +6,8 @@ from .models import Order
 class OrderCreateForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        # for field in self.visible_fields():
+        #     field.field.widget.attrs["class"] = "form-control"
         self.fields['first_name'].widget.attrs.update(
             {'class': 'form-control'})
         self.fields['last_name'].widget.attrs.update(

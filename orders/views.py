@@ -1,17 +1,42 @@
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
+from django.contrib.admin.views.decorators import staff_member_required
 from django.shortcuts import render, get_object_or_404, redirect
+from django.http import HttpResponse
 from django.core.mail import send_mail
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.crypto import get_random_string
 from django.urls import reverse
+from django.template.loader import render_to_string
+import weasyprint
 from django.conf import settings
 
 from carts.cart import Cart
 
 from .models import OrderItem, Order
 from .forms import OrderCreateForm
+from .tasks import order_created
 
+@staff_member_required
+def admin_order_detail(request, order_id):
+    order = get_object_or_404(Order, id=order_id)
+
+    template = "admin/orders/order/detail.html"
+    context = {"order": order}
+
+    return render(request, template, context)
+
+
+@staff_member_required
+def admin_order_pdf(request, order_id):
+    order = get_object_or_404(Order, id=order_id)
+    html = render_to_string("orders/order/pdf.html", {"order": order})
+    response = HttpResponse(content_type="application/pdf")
+    response["Content-Disposition"] = f"filename=order_{order.id}.pdf"
+    weasyprint.HTML(string=html).write_pdf(
+        response, stylesheets=[weasyprint.CSS(settings.STATIC_ROOT + "styles/pdf.css")]
+    )
+    return response
 
 def order_create(request):
     cart = Cart(request)
@@ -19,11 +44,16 @@ def order_create(request):
         form = OrderCreateForm(request.POST)
         if form.is_valid():
             order = form.save(commit=False)
+            # if coupon is applied
+            if cart.coupon:
+                order.coupon = cart.coupon
+                order.discount = cart.coupon.discount
             if request.user.is_authenticated:
                 order.user = request.user
+            # save a new order
             order.save()
             request.session['order_id'] = order.id
-
+            # add each products in the cart to create an orderitem
             for item in cart:
                 if request.user.is_authenticated:
                     OrderItem.objects.create(
@@ -33,6 +63,7 @@ def order_create(request):
                         user=request.user,
                         vendor=item['product'].vendor.vendor,
                         quantity=item['quantity'])
+                    # associate with the vendor
                     order.vendors.add(item['product'].vendor.vendor)
                 else:
                     OrderItem.objects.create(
@@ -41,10 +72,17 @@ def order_create(request):
                         price=item['price'],
                         vendor=item['product'].vendor.vendor,
                         quantity=item['quantity'])
+                    # associate with the vendor
                     order.vendors.add(item['product'].vendor.vendor)
 
             # clear the cart
             cart.clear()
+            # launch asynchronous task
+            order_created.delay(order.id)
+            # set the order in the session
+            request.session["order_id"] = order.id
+            # redirect for payment
+            # return redirect(reverse("payment:process"))
             return render(request,
                           'orders/created.html',
                           {'order': order})
@@ -71,22 +109,22 @@ def confirm_order(request):
     order_id = request.session.get('order_id')
     order = get_object_or_404(order, id=order_id)
 
-    # paystack_amount = int(order.get_total_cost * 100)
-    # paystack_ref = None
-    # if not paystack_ref:
-    #     paystack_ref = get_random_string(length=12).upper()
-    #     order.paystack_id = paystack_ref
-    #     order.total_amount = order.get_total_cost
-    #     order.save()
-    # paystack_redirect_url = "{}?amount={}".format(
-    #     reverse('paystack:verify_payment',
-    #             args=[paystack_ref]), paystack_amount, order)
+    paystack_amount = int(order.get_total_cost * 100)
+    paystack_ref = None
+    if not paystack_ref:
+        paystack_ref = get_random_string(length=12).upper()
+        order.paystack_id = paystack_ref
+        order.total_amount = order.get_total_cost
+        order.save()
+    paystack_redirect_url = "{}?amount={}".format(
+        reverse('paystack:verify_payment',
+                args=[paystack_ref]), paystack_amount, order)
 
     template = 'orders/confirm_order.html'
     context = {'order': order,
-                #    'paystack_key': settings.PAYSTACK_PUBLIC_KEY,
-                #    'paystack_amount': paystack_amount,
-                #    'paystack_redirect_url': paystack_redirect_url
+                   'paystack_key': settings.PAYSTACK_PUBLIC_KEY,
+                   'paystack_amount': paystack_amount,
+                   'paystack_redirect_url': paystack_redirect_url
     }
     return render(request, template, context)
 

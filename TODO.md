@@ -13,6 +13,39 @@
 Related products: By category, By vendor
 Checkout form: add more fields
 
+- Home
+- Product Listing
+- Product Detail
+- Search results
+- Cart
+- Checkout
+- Order Success
+- Track order
+- Wishlist
+- Compare
+- User Dashboard
+- User orders
+- Addresses
+- Settings
+
+Home
+- Recommended Products
+- Recently Viewed
+- Shop by Categories
+- Deal of the Day
+- Top rated
+- Product by top categories
+Features:
+Today's Deals
+Sponsored Products
+Top categories
+recommended for you
+Top selling items
+Flash sales
+Limited stock deals
+Official store deals
+Order ID Tracking
+
 - Introduce ecommerce affiliate, whereby customers can also earn money based on referral purchases
 Follow a vendor to get information about latest products on sale
 

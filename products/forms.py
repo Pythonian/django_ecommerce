@@ -2,6 +2,13 @@ from django import forms
 
 from .models import Product, Review
 
+REVIEW_CHOICES = [
+    ("1", "1"),
+    ("2", "2"),
+    ("3", "3"),
+    ("4", "4"),
+    ("5", "5"),
+]
 
 class ProductForm(forms.ModelForm):
 
@@ -28,3 +35,8 @@ class ReviewForm(forms.ModelForm):
     class Meta:
         model = Review
         fields = ['subject', 'content', 'rating']
+
+        # widgets = {
+        #     "rating": forms.RadioSelect(choices=REVIEW_CHOICES),
+        #     "content": forms.Textarea(attrs={"class": "form-control shadow px-2", "rows": 6}),
+        # }

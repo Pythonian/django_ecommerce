@@ -1,7 +1,13 @@
 from datetime import datetime, timedelta
+from decimal import Decimal
+
+from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
+from django.utils.translation import gettext_lazy as _
+
 
 from accounts.models import User, Vendor
+from coupons.models import Coupon
 from products.models import Product
 
 
@@ -25,14 +31,13 @@ class Order(models.Model):
         User, on_delete=models.CASCADE, related_name='orders',
         blank=True, null=True) # models.SET_NULL
     # full_name?
-    first_name = models.CharField(max_length=50)
-    last_name = models.CharField(max_length=50)
-    email = models.EmailField()
-    # address1 / address2?
-    address = models.CharField(max_length=250)
-    postal_code = models.CharField(max_length=5)
+    first_name = models.CharField(_("first name"), max_length=50)
+    last_name = models.CharField(_("last name"), max_length=50)
+    email = models.EmailField(_("e-mail"))
+    address = models.CharField(_("address"), max_length=250)
+    postal_code = models.CharField(_("postal code"), max_length=20)
     phone_number = models.CharField(max_length=20)
-    city = models.CharField(max_length=20)
+    city = models.CharField(_("city"), max_length=100)
     state = models.CharField(max_length=20)
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
@@ -47,15 +52,33 @@ class Order(models.Model):
         blank=True, null=True)
     paystack_id = models.CharField(max_length=150, blank=True)
     vendors = models.ManyToManyField(Vendor, related_name='orders')
+    coupon = models.ForeignKey(Coupon, related_name="orders", null=True, blank=True, on_delete=models.SET_NULL)
+    # preserve discount if coupon is modified or deleted
+    discount = models.IntegerField(default=0, validators=[MinValueValidator(0), MaxValueValidator(100)])
+    created = models.DateTimeField(auto_now_add=True)
+    updated = models.DateTimeField(auto_now=True)
 
     class Meta:
         ordering = ("-created",)
+        indexes = [
+            models.Index(fields=["-created"]),
+        ]
 
     def __str__(self):
         return f"Order {self.id}"
 
-    def get_total_cost(self):
+    def get_total_cost_before_discount(self):
         return sum(item.get_cost() for item in self.items.all())
+
+    def get_discount(self):
+        total_cost = self.get_total_cost_before_discount()
+        if self.discount:
+            return total_cost * (self.discount / Decimal(100))
+        return Decimal(0)
+
+    def get_total_cost(self):
+        total_cost = self.get_total_cost_before_discount()
+        return total_cost - self.get_discount()
 
 
 class OrderItem(models.Model):

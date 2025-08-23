@@ -85,7 +85,7 @@ def product_detail(request, slug):
     else:
         review_form = ReviewForm()
 
-    similar_products = list(product.category.products.filter(is_approved=True).exclude(
+    similar_products = list(product.category.products.filter(is_approved=True, is_available=True).exclude(
         id=product.id))
 
     if len(similar_products) >= 4:
@@ -113,6 +113,19 @@ def categories(request):
     }
 
     return render(request, template_name, context)
+
+
+def category_detail(request, slug):
+    category = get_object_or_404(Category, slug=slug)
+    products = category.products.all()
+
+    template = "products/category.html"
+    context = {
+        "category": category,
+        "products": products,
+    }
+
+    return render(request, template, context)
 
 
 def product_search(request):
